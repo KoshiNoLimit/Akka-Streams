@@ -14,7 +14,7 @@ import java.util.concurrent.CompletionStage;
 public class Server {
 
     public static void main(String[] args) throws IOException {
-        System.out.println("start!");
+        System.out.println(Config.ON_START);
         ActorSystem system = ActorSystem.create("routes");
         final Http http = Http.get(system);
         final ActorMaterializer materializer = ActorMaterializer.create(system);
