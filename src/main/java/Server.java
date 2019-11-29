@@ -27,7 +27,7 @@ public class Server {
                 ConnectHttp.toHost(HOST, PORT),
                 materializer
         );
-        System.out.println("Server online at http://localhost:8080/\nPress RETURN to stop...");
+        System.out.println(SERVER_START_MESSAGE);
         System.in.read();
         binding
                 .thenCompose(ServerBinding::unbind)
