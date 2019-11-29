@@ -5,16 +5,16 @@ import akka.http.javadsl.Http;
 import akka.http.javadsl.ServerBinding;
 import akka.http.javadsl.model.HttpRequest;
 import akka.http.javadsl.model.HttpResponse;
+import akka.http.javadsl.server.AllDirectives;
 import akka.stream.ActorMaterializer;
 import akka.stream.javadsl.Flow;
-import config.Config;
 
 import java.io.IOException;
 import java.util.concurrent.CompletionStage;
 
 import static config.Config.*;
 
-public class Server {
+public class Server  extends AllDirectives {
 
     public static void main(String[] args) throws IOException {
         System.out.println(ON_START);
@@ -30,7 +30,7 @@ public class Server {
         System.out.println(SERVER_START_MESSAGE);
         System.in.read();
         binding
-                .thenCompose(ServerBinding::unbind)
+                .thenCompose(ServerBinding::unbind) // trigger unbinding from the port
                 .thenAccept(unbound -> system.terminate()); // and shutdown when done
     }
 }
