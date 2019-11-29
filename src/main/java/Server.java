@@ -7,21 +7,24 @@ import akka.http.javadsl.model.HttpRequest;
 import akka.http.javadsl.model.HttpResponse;
 import akka.stream.ActorMaterializer;
 import akka.stream.javadsl.Flow;
+import config.Config;
 
 import java.io.IOException;
 import java.util.concurrent.CompletionStage;
 
+import static config.Config.*;
+
 public class Server {
 
     public static void main(String[] args) throws IOException {
-        System.out.println(Config.ON_START);
-        ActorSystem system = ActorSystem.create("routes");
+        System.out.println(ON_START);
+        ActorSystem system = ActorSystem.create(SYSTEM_NAME);
         final Http http = Http.get(system);
         final ActorMaterializer materializer = ActorMaterializer.create(system);
         final Flow<HttpRequest, HttpResponse, NotUsed> routeFlow = <вызов метода которому передаем Http, ActorSystem и ActorMaterializer>;
         final CompletionStage<ServerBinding> binding = http.bindAndHandle(
                 routeFlow,
-                ConnectHttp.toHost("localhost", 8080),
+                ConnectHttp.toHost(HOST, PORT),
                 materializer
         );
         System.out.println("Server online at http://localhost:8080/\nPress RETURN to stop...");
