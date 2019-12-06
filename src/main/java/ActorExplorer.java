@@ -1,4 +1,8 @@
-package PACKAGE_NAME;
+import akka.actor.AbstractActor;
 
-public class ActorExplorer {
+public class ActorExplorer extends AbstractActor {
+    @Override
+    public Receive createReceive() {
+        return null;
+    }
 }
