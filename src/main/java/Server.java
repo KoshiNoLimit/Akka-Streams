@@ -21,7 +21,7 @@ public class Server  extends AllDirectives {
         ActorSystem system = ActorSystem.create(SYSTEM_NAME);
         final Http http = Http.get(system);
         final ActorMaterializer materializer = ActorMaterializer.create(system);
-        final Flow<HttpRequest, HttpResponse, NotUsed> routeFlow = Flow.of(HttpRequest.class).map(s -> Pair<>)//вызов метода которому передаем Http, ActorSystem и ActorMaterializer;
+        final Flow<HttpRequest, HttpResponse, NotUsed> routeFlow = createFlow(http, system, materializer);//вызов метода которому передаем Http, ActorSystem и ActorMaterializer;
         final CompletionStage<ServerBinding> binding = http.bindAndHandle(
                 routeFlow,
                 ConnectHttp.toHost(HOST, PORT),
@@ -32,5 +32,9 @@ public class Server  extends AllDirectives {
         binding
                 .thenCompose(ServerBinding::unbind) // trigger unbinding from the port
                 .thenAccept(unbound -> system.terminate()); // and shutdown when done
+    }
+
+    private static Flow<HttpRequest, HttpResponse, NotUsed> createFlow(Http http, ActorSystem system, ActorMaterializer materializer) {
+        Flow.of(HttpRequest.class)
     }
 }
