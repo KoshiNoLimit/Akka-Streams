@@ -42,7 +42,9 @@ public class Server  extends AllDirectives {
     private static Flow<HttpRequest, HttpResponse, NotUsed> createFlow(Http http, ActorRef explorer, ActorMaterializer materializer) {
         Flow.of(HttpRequest.class).map(h -> {
             Query q = h.getUri().query();
-            String url = q.get()
+            String url = q.get(ULR_PARAMETER).get();
+            Integer
+
         })
     }
 }
