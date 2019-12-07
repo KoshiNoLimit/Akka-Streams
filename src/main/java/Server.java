@@ -96,18 +96,17 @@ public class Server  extends AllDirectives {
 
     private static Sink<Pair<String, Integer>, CompletionStage<Long>> testSink() {
         return Flow.<Pair<String, Integer>>create()
-                .mapConcat(msg -> Collections.nCopies(msg.getValue(), msg.getKey()))
+                .mapConcat(msg ->
+                        Collections.nCopies(msg.getValue(), msg.getKey()))
                 .mapAsync(MAX_STREAMS, url -> {
                     long zeroTime = System.nanoTime();
                     AsyncHttpClient client = asyncHttpClient();
-
                     return client
                             .prepareGet(url)
                             .execute()
                             .toCompletableFuture()
                             .exceptionally(throwable -> (Response) Supervision.stop())
                             .thenApply(response -> System.nanoTime() - zeroTime);
-                })
-                .toMat(Sink.fold(0L, Long::sum), Keep.right());
+                }).toMat(Sink.fold(0L, Long::sum), Keep.right());
     }
 }
