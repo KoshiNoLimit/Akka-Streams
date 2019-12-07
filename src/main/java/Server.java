@@ -87,7 +87,7 @@ public class Server  extends AllDirectives {
                });
     }
 
-    private static CompletionStage<Long> takeSource (Pair<String, Integer> pair, Materializer materializer) {
+    private static CompletionStage<TestMessage> takeSource (Pair<String, Integer> pair, Materializer materializer) {
         return Source.from(Collections.singletonList(pair))
                 .toMat(testSink(), Keep.right())
                 .run(materializer)
