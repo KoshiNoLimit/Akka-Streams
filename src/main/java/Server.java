@@ -43,7 +43,7 @@ public class Server  extends AllDirectives {
         Flow.of(HttpRequest.class).map(h -> {
             Query q = h.getUri().query();
             String url = q.get(ULR_PARAMETER).get();
-            Integer
+            Integer count = Integer.valueOf(q.get(COUNT_PARAMETER).get());
 
         })
     }
