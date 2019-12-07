@@ -86,6 +86,6 @@ public class Server  extends AllDirectives {
                             .toCompletableFuture()
                             .thenCompose(response -> System.nanoTime() - zeroTime);
                 })
-                .toMat(Sink.fold(), Keep.right());
+                .toMat(Sink.fold(0L, Long::sum), Keep.right());
     }
 }
