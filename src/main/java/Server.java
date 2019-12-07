@@ -69,10 +69,8 @@ public class Server  extends AllDirectives {
                                    .thenCompose(answer ->
                                            answer.getClass() == TestMessage.class ?
                                                    CompletableFuture.completedFuture(answer)
-                                                   : Source.from(Collections.singletonList(msg))
-                                                   .toMat(testSink(), Keep.right()).run(materializer)
-                                                   .thenCompose(sum ->
-                                                           CompletableFuture(new TestMessage(msg.getKey(), sum / msg.getValue()))))
+                                                   : takeSource(answer, materializer))
+
                                    .map(answer -> {
                                        explorer.tell(answer, ActorRef.noSender());
                                        return HttpResponse
@@ -88,8 +86,13 @@ public class Server  extends AllDirectives {
                );
     }
 
-    private static takeSource (Pair<String, Integer> pair, Materializer materializer) {
-        
+    private static CompletionStage<TestMessage> takeSource (Pair<String, Integer> pair, Materializer materializer) {
+        return Source.from(Collections.singletonList(pair))
+                .toMat(testSink(), Keep.right())
+                .run(materializer)
+                .thenCompose(sum ->
+                        CompletableFuture(
+                                new TestMessage(pair.getKey(), sum / pair.getValue())));
     }
 
     private static Sink<Pair<String, Integer>, CompletionStage<Long>> testSink() {
