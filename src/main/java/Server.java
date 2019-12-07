@@ -86,13 +86,11 @@ public class Server  extends AllDirectives {
                );
     }
 
-    private static CompletionStage<TestMessage> takeSource (Pair<String, Integer> pair, Materializer materializer) {
+    private static CompletionStage<Long> takeSource (Pair<String, Integer> pair, Materializer materializer) {
         return Source.from(Collections.singletonList(pair))
                 .toMat(testSink(), Keep.right())
                 .run(materializer)
-                .thenCompose(sum ->
-                        CompletableFuture(
-                                new TestMessage(pair.getKey(), sum / pair.getValue())));
+                .thenCompose(sum -> Long.sum +1 );
     }
 
     private static Sink<Pair<String, Integer>, CompletionStage<Long>> testSink() {
