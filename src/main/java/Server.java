@@ -57,7 +57,7 @@ public class Server  extends AllDirectives {
                     .thenCompose(x ->
                             x.getClass() == TestMessage.class ?
                             CompletableFuture.completedFuture(x)
-                            : Source.from(Collections.singletonList(r)))
+                            : Source.from(Collections.singletonList(msg)))
         )
     }
 }
