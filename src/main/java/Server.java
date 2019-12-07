@@ -87,7 +87,7 @@ public class Server  extends AllDirectives {
                );
     }
 
-    private static c
+    private static takeSource
 
     private static Sink<Pair<String, Integer>, CompletionStage<Long>> testSink() {
         return Flow.<Pair<String, Integer>>create()
