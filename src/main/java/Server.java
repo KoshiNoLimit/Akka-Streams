@@ -64,14 +64,16 @@ public class Server  extends AllDirectives {
                    // }
                    // return Supervision.stop();
 
-        }).mapAsync(MAX_STREAMS,  msg ->
-               Patterns.ask(explorer, new FindMessage(msg.getKey()), TIMEOUT)
-                               .thenCompose(answer ->
-                                       answer.getClass() == TestMessage.class ?
-                                               CompletableFuture.completedFuture(answer)
-                                               : takeSource(msg, materializer)
-                               )
-                )
+        }).mapAsync(MAX_STREAMS,  msg -> {
+            
+                    Patterns.ask(explorer, new FindMessage(msg.getKey()), TIMEOUT)
+                            .thenCompose(answer ->
+                                    answer.getClass() == TestMessage.class ?
+                                            CompletableFuture.completedFuture(answer)
+                                            : takeSource(msg, materializer)
+                            );
+                    return null;
+                })
                .map(answer -> {
                    explorer.tell(answer, ActorRef.noSender());
                    return HttpResponse
