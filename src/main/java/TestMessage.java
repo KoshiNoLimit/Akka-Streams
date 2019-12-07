@@ -1,13 +1,13 @@
 public class TestMessage {
     private String url;
-    private Integer count;
+    private Long count;
 
-    TestMessage(String url, Integer count) {
+    TestMessage(String url, Long count) {
         this.url = url;
         this.count = count;
     }
 
-    public Integer getCount() {
+    public Long getCount() {
         return count;
     }
 

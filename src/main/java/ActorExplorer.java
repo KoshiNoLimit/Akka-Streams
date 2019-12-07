@@ -17,11 +17,11 @@ public class ActorExplorer extends AbstractActor {
                     if(!store.containsKey(msg.getUrl())) {
                         sender().tell(HAVENT,self());
                     } else {
-                        sender().tell()
+                        sender().tell(new TestMessage(msg.getUrl(), store.get(msg.getUrl())), self());
                     }
-
                 })
                 .match(TestMessage.class, msg -> {
+                    
 
                 }).
         build();
