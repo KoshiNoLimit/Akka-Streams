@@ -9,5 +9,6 @@ public class Config {
     public static final String ULR_PARAMETER = "testUrl";
     public static final String COUNT_PARAMETER = "count";
     public static final Integer MAX_STREAMS = 4;
+    public static final Integer TIMEOUT = 5000;
 
 }

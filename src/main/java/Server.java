@@ -9,11 +9,13 @@ import akka.http.javadsl.model.HttpRequest;
 import akka.http.javadsl.model.HttpResponse;
 import akka.http.javadsl.model.Query;
 import akka.http.javadsl.server.AllDirectives;
+import akka.pattern.Patterns;
 import akka.stream.ActorMaterializer;
 import akka.stream.javadsl.Flow;
 
 import java.io.IOException;
 import java.util.concurrent.CompletionStage;
+import java.util.regex.Pattern;
 
 import static config.Config.*;
 
@@ -46,7 +48,7 @@ public class Server  extends AllDirectives {
             Integer count = Integer.valueOf(q.get(COUNT_PARAMETER).get());
             return new TestMessage(url, count);
         }).mapAsync(MAX_STREAMS, msg -> {
-            get
+            Patterns.ask(explorer, new FindMessage(msg.getUrl()), TIMEOUT)
         })
     }
 }
