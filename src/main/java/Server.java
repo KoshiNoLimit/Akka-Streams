@@ -63,7 +63,7 @@ public class Server  extends AllDirectives {
                                 .from(Collections.singletonList(msg))
                                 .toMat(testSink(), Keep.right())
                                 .run(materializer)
-                                .thenApply(sum -> new TestMessage(msg.getKey(),  sum / msg.getValue()))));
+                                .thenCompose(sum -> CompletableFuture(new TestMessage(msg.getKey(),  sum / msg.getValue()))));
 
 
 
