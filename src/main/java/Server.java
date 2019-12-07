@@ -73,7 +73,7 @@ public class Server  extends AllDirectives {
 
     private static Sink<Long> testSink() {
         Flow.<Pair<String, Integer>>create()
-                .mapConcat()
+                .mapConcat(r -> )
 
     }
 }
