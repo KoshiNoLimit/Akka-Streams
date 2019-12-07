@@ -20,7 +20,7 @@ public class ActorExplorer extends AbstractActor {
                     }
                 })
                 .match(TestMessage.class, msg ->
-                        store.put(msg.getUrl(), msg.getCount())).
-        build();
+                        store.put(msg.getUrl(), msg.getCount()))
+            .build();
     }
 }
