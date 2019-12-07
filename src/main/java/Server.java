@@ -53,7 +53,7 @@ public class Server  extends AllDirectives {
 
     private static Flow<HttpRequest, HttpResponse, NotUsed> createFlow(ActorRef explorer, ActorMaterializer materializer) {
 
-        Flow<HttpRequest, Object, NotUsed> FlowPairsOfUrls = Flow.of(HttpRequest.class)
+        return Flow.of(HttpRequest.class)
                 .map(msg -> {
                     Query q = msg.getUri().query();
                     String url;
@@ -64,30 +64,24 @@ public class Server  extends AllDirectives {
                         return new Pair<>(url, count);
                    // }
                    // return Supervision.stop();
-
-        }).mapAsync(MAX_STREAMS,  msg -> {
-                    Patterns.ask(explorer, new FindMessage(msg.getKey()), TIMEOUT)
-                            .thenCompose(answer ->
-                                    answer.getClass() == TestMessage.class ?
-                                            CompletableFuture.completedFuture(answer)
-                                            : takeSource(msg, materializer)
-                            );
-                    return null;
-                })
-               .map(answer -> {
-                   explorer.tell(answer, ActorRef.noSender());
-                   return HttpResponse
-                           .create()
-                           .withStatus(StatusCodes.OK)
-                           .withEntity(
-                                   HttpEntities.create(
-                                           answer.getUrl() + " " + answer.getCount()
-                                   )
-                           );
-               });
+                }).mapAsync(MAX_STREAMS,  msg ->
+                        Patterns.ask(explorer, new FindMessage(msg.getKey()), TIMEOUT)
+                                .thenCompose(answer ->
+                                        answer.getClass() == TestMessage.class ?
+                                                CompletableFuture.completedFuture(answer)
+                                                : takeSource(msg, materializer)))
+                        .map(answer -> {
+                            explorer.tell(answer, ActorRef.noSender());
+                            return HttpResponse
+                                .create()
+                                .withStatus(StatusCodes.OK)
+                                .withEntity(
+                                    HttpEntities.create(
+                                        answer.getUrl() + " " + answer.getCount()));
+                        });
     }
 
-    private static CompletionStage<TestMessage> takeSource (Pair<String, Integer> pair, Materializer materializer) {
+    private static CompletionStage<Long> takeSource (Pair<String, Integer> pair, Materializer materializer) {
         return Source.from(Collections.singletonList(pair))
                 .toMat(testSink(), Keep.right())
                 .run(materializer)
