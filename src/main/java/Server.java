@@ -72,7 +72,7 @@ public class Server  extends AllDirectives {
                             .withStatus(StatusCodes.OK)
                             .withEntity(
                                     HttpEntities.create(
-                                            answer.getUrl() + " " + result.get
+                                            answer.getUrl() + " " + result.getCount()
                                     )
                             )
                 })
