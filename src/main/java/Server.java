@@ -57,32 +57,34 @@ public class Server  extends AllDirectives {
                     if(q.get(ULR_PARAMETER).isPresent() & q.get(COUNT_PARAMETER).isPresent()){
                         url = q.get(ULR_PARAMETER).get();
                         count = Integer.parseInt(q.get(COUNT_PARAMETER).get());
-                        return new Pair<>(url, count);
+                        return new TestPuttern(url, count);
                     }
                     return Supervision.stop();
         });
 
        FlowPairsOfUrls
-               .mapAsync(MAX_STREAMS, msg ->
-                       Patterns.ask(explorer, new FindMessage(msg.getKey()), TIMEOUT)
-                               .thenCompose(answer ->
-                                       answer.getClass() == TestMessage.class ?
-                                               CompletableFuture.completedFuture(answer)
-                                               : Source.from(Collections.singletonList(msg))
-                                               .toMat(testSink(), Keep.right()).run(materializer)
-                                               .thenCompose(sum ->
-                                                       CompletableFuture(new TestMessage(msg.getKey(), sum / msg.getValue()))))
-                               .map(answer -> {
-                                   explorer.tell(answer, ActorRef.noSender());
-                                   return HttpResponse
-                                           .create()
-                                           .withStatus(StatusCodes.OK)
-                                           .withEntity(
-                                                   HttpEntities.create(
-                                                           answer.getUrl() + " " + result.getCount()
-                                                   )
-                                           );
-                               })
+               .mapAsync(MAX_STREAMS, (TestPuttern) msg -> {
+                   TestPuttern test = msg;
+                           Patterns.ask(explorer, new FindMessage(msg.getUrl()), TIMEOUT)
+                                   .thenCompose(answer ->
+                                           answer.getClass() == TestMessage.class ?
+                                                   CompletableFuture.completedFuture(answer)
+                                                   : Source.from(Collections.singletonList(msg))
+                                                   .toMat(testSink(), Keep.right()).run(materializer)
+                                                   .thenCompose(sum ->
+                                                           CompletableFuture(new TestMessage(msg.getKey(), sum / msg.getValue()))))
+                                   .map(answer -> {
+                                       explorer.tell(answer, ActorRef.noSender());
+                                       return HttpResponse
+                                               .create()
+                                               .withStatus(StatusCodes.OK)
+                                               .withEntity(
+                                                       HttpEntities.create(
+                                                               answer.getUrl() + " " + result.getCount()
+                                                       )
+                                               );
+                                   })
+                       }
                );
     }
 
