@@ -7,6 +7,7 @@ import akka.http.javadsl.Http;
 import akka.http.javadsl.ServerBinding;
 import akka.http.javadsl.model.HttpRequest;
 import akka.http.javadsl.model.HttpResponse;
+import akka.http.javadsl.model.Query;
 import akka.http.javadsl.server.AllDirectives;
 import akka.stream.ActorMaterializer;
 import akka.stream.javadsl.Flow;
@@ -39,8 +40,9 @@ public class Server  extends AllDirectives {
     }
 
     private static Flow<HttpRequest, HttpResponse, NotUsed> createFlow(Http http, ActorRef explorer, ActorMaterializer materializer) {
-        Flow.of(HttpRequest.class).map(q -> {
-            
+        Flow.of(HttpRequest.class).map(h -> {
+            Query q = h.getUri().query();
+            String url = q.get()
         })
     }
 }
