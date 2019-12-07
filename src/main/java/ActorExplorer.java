@@ -1,5 +1,4 @@
 import akka.actor.AbstractActor;
-import akka.http.javadsl.model.ws.TextMessage;
 import akka.japi.pf.ReceiveBuilder;
 
 import java.util.HashMap;
@@ -20,10 +19,8 @@ public class ActorExplorer extends AbstractActor {
                         sender().tell(new TestMessage(msg.getUrl(), store.get(msg.getUrl())), self());
                     }
                 })
-                .match(TestMessage.class, msg -> {
-                    
-
-                }).
+                .match(TestMessage.class, msg ->
+                        store.put(msg.getUrl(), msg.getCount())).
         build();
     }
 }
