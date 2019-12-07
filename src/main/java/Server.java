@@ -63,7 +63,7 @@ public class Server  extends AllDirectives {
                 .map(msg -> {
                     explorer.tell(msg, ActorRef.noSender());
 
-                    
+
                 })
         )
     }
