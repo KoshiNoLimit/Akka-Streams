@@ -70,7 +70,6 @@ public class Server  extends AllDirectives {
                                            answer.getClass() == TestMessage.class ?
                                                    CompletableFuture.completedFuture(answer)
                                                    : takeSource(answer, materializer))
-
                                    .map(answer -> {
                                        explorer.tell(answer, ActorRef.noSender());
                                        return HttpResponse
