@@ -69,7 +69,7 @@ public class Server  extends AllDirectives {
                                .thenCompose(answer ->
                                        answer.getClass() == TestMessage.class ?
                                                CompletableFuture.completedFuture(answer)
-                                               : takeSource(answer, materializer))
+                                               : takeSource(msg, materializer))
                                .map(answer -> {
                                    explorer.tell(answer, ActorRef.noSender());
                                    return HttpResponse
