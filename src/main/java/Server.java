@@ -60,7 +60,11 @@ public class Server  extends AllDirectives {
                             CompletableFuture.completedFuture(x)
                             : Source.from(Collections.singletonList(msg))
                                 .toMat(testSink, Keep.right()).run(materializer)))
-                .map()
+                .map(msg -> {
+                    explorer.tell(msg, ActorRef.noSender());
+
+                    
+                })
         )
     }
 }
