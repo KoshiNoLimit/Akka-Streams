@@ -70,19 +70,17 @@ public class Server  extends AllDirectives {
                                        answer.getClass() == TestMessage.class ?
                                                CompletableFuture.completedFuture(answer)
                                                : takeSource(msg, materializer)))
-                               .map(answer -> {
-                                   explorer.tell(answer, ActorRef.noSender());
-                                   return HttpResponse
-                                           .create()
-                                           .withStatus(StatusCodes.OK)
-                                           .withEntity(
-                                                   HttpEntities.create(
-                                                           answer.getUrl() + " " + result.getCount()
-                                                   )
-                                           );
-                               })
-
-           );
+               .map(answer -> {
+                   explorer.tell(answer, ActorRef.noSender());
+                   return HttpResponse
+                           .create()
+                           .withStatus(StatusCodes.OK)
+                           .withEntity(
+                                   HttpEntities.create(
+                                           answer.getUrl() + " " + result.getCount()
+                                   )
+                           );
+               });
     }
 
     private static CompletionStage<Long> takeSource (Pair<String, Integer> pair, Materializer materializer) {
