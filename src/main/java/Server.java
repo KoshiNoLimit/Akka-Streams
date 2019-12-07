@@ -57,15 +57,14 @@ public class Server  extends AllDirectives {
                     if(q.get(ULR_PARAMETER).isPresent() & q.get(COUNT_PARAMETER).isPresent()){
                         url = q.get(ULR_PARAMETER).get();
                         count = Integer.parseInt(q.get(COUNT_PARAMETER).get());
-                        return new TestPuttern(url, count);
+                        return new Pair<String, Integer>(url, count);
                     }
                     return Supervision.stop();
         });
 
        FlowPairsOfUrls
-               .mapAsync(MAX_STREAMS, (TestPuttern) msg -> {
-                   TestPuttern test = msg;
-                           Patterns.ask(explorer, new FindMessage(msg.getUrl()), TIMEOUT)
+               .mapAsync(MAX_STREAMS,  msg -> {
+                   Patterns.ask(explorer, new FindMessage(msg), TIMEOUT)
                                    .thenCompose(answer ->
                                            answer.getClass() == TestMessage.class ?
                                                    CompletableFuture.completedFuture(answer)
