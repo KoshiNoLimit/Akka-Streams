@@ -5,9 +5,7 @@ import akka.actor.Props;
 import akka.http.javadsl.ConnectHttp;
 import akka.http.javadsl.Http;
 import akka.http.javadsl.ServerBinding;
-import akka.http.javadsl.model.HttpRequest;
-import akka.http.javadsl.model.HttpResponse;
-import akka.http.javadsl.model.Query;
+import akka.http.javadsl.model.*;
 import akka.http.javadsl.server.AllDirectives;
 import akka.pattern.Patterns;
 import akka.stream.ActorMaterializer;
@@ -66,7 +64,18 @@ public class Server  extends AllDirectives {
                                 .toMat(testSink(), Keep.right())
                                 .run(materializer)
                                 .thenCompose(sum -> CompletableFuture(new TestMessage(msg.getKey(),  sum / msg.getValue()))))
-                .map()
+                .map(answer -> {
+                    explorer.tell(answer, ActorRef.noSender());
+
+                    return HttpResponse
+                            .create()
+                            .withStatus(StatusCodes.OK)
+                            .withEntity(
+                                    HttpEntities.create(
+                                            answer.getUrl() + " " + result.get
+                                    )
+                            )
+                })
 
 
 
