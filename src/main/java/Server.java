@@ -12,6 +12,7 @@ import akka.http.javadsl.server.AllDirectives;
 import akka.pattern.Patterns;
 import akka.stream.ActorMaterializer;
 import akka.stream.javadsl.Flow;
+import akka.stream.javadsl.Keep;
 import akka.stream.javadsl.Source;
 import com.sun.xml.internal.ws.util.CompletedFuture;
 
@@ -57,7 +58,8 @@ public class Server  extends AllDirectives {
                     .thenCompose(x ->
                             x.getClass() == TestMessage.class ?
                             CompletableFuture.completedFuture(x)
-                            : Source.from(Collections.singletonList(msg)))
+                            : Source.from(Collections.singletonList(msg))
+                                .toMat(testSink, Keep.right()).run(materializer))
         )
     }
 }
