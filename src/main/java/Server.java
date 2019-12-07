@@ -77,7 +77,7 @@ public class Server  extends AllDirectives {
         return Flow.<Pair<String, Integer>>create()
                 .mapConcat(msg -> Collections.nCopies(msg.getValue(), msg.getKey()))
                 .mapAsync(MAX_STREAMS, url -> {
-                    Long zeroTime = System.nanoTime();
+                    long zeroTime = System.nanoTime();
                     AsyncHttpClient client = Dsl.asyncHttpClient();
 
                     return client
