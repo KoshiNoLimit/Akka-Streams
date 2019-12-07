@@ -73,7 +73,8 @@ public class Server  extends AllDirectives {
 
     private static Sink<Long> testSink() {
         Flow.<Pair<String, Integer>>create()
-                .mapConcat(r -> )
+                .mapConcat(msg -> Collections.nCopies(msg.getValue(), msg.getKey()))
+                .mapAsync()
 
     }
 }
