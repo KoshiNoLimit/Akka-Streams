@@ -10,6 +10,6 @@ public class Config {
     public static final String COUNT_PARAMETER = "count";
     public static final Integer MAX_STREAMS = 4;
     public static final Integer TIMEOUT = 5000;
-    public static final String  HAVENT = "Have"
+    public static final String  HAVENT = "Have "
 
 }
