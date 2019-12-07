@@ -90,7 +90,7 @@ public class Server  extends AllDirectives {
         return Source.from(Collections.singletonList(pair))
                 .toMat(testSink(), Keep.right())
                 .run(materializer)
-                .thenCompose(sum -> Long.sum +1 );
+                .thenCompose(sum -> Long.parseLong(String.valueOf(sum +1)) );
     }
 
     private static Sink<Pair<String, Integer>, CompletionStage<Long>> testSink() {
