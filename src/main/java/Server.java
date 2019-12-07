@@ -57,34 +57,32 @@ public class Server  extends AllDirectives {
                     Query q = msg.getUri().query();
                     String url;
                     int count;
-                    if(q.get(ULR_PARAMETER).isPresent() & q.get(COUNT_PARAMETER).isPresent()){
+                    //if(q.get(ULR_PARAMETER).isPresent() & q.get(COUNT_PARAMETER).isPresent()){
                         url = q.get(ULR_PARAMETER).get();
                         count = Integer.parseInt(q.get(COUNT_PARAMETER).get());
-                        return new Pair<String, Integer>(url, count);
-                    }
-                    return Supervision.stop();
-        });
+                        return new Pair<>(url, count);
+                   // }
+                   // return Supervision.stop();
 
-       FlowPairsOfUrls
-               .mapAsync(MAX_STREAMS,  msg -> {
-                   Patterns.ask(explorer, new FindMessage(msg), TIMEOUT)
-                                   .thenCompose(answer ->
-                                           answer.getClass() == TestMessage.class ?
-                                                   CompletableFuture.completedFuture(answer)
-                                                   : takeSource(answer, materializer))
-                                   .map(answer -> {
-                                       explorer.tell(answer, ActorRef.noSender());
-                                       return HttpResponse
-                                               .create()
-                                               .withStatus(StatusCodes.OK)
-                                               .withEntity(
-                                                       HttpEntities.create(
-                                                               answer.getUrl() + " " + result.getCount()
-                                                       )
-                                               );
-                                   })
-                       }
-               );
+        }).mapAsync(MAX_STREAMS,  msg ->
+               Patterns.ask(explorer, new FindMessage(msg.getKey()), TIMEOUT)
+                               .thenCompose(answer ->
+                                       answer.getClass() == TestMessage.class ?
+                                               CompletableFuture.completedFuture(answer)
+                                               : takeSource(answer, materializer))
+                               .map(answer -> {
+                                   explorer.tell(answer, ActorRef.noSender());
+                                   return HttpResponse
+                                           .create()
+                                           .withStatus(StatusCodes.OK)
+                                           .withEntity(
+                                                   HttpEntities.create(
+                                                           answer.getUrl() + " " + result.getCount()
+                                                   )
+                                           );
+                               })
+
+           );
     }
 
     private static CompletionStage<Long> takeSource (Pair<String, Integer> pair, Materializer materializer) {
@@ -101,6 +99,7 @@ public class Server  extends AllDirectives {
                 .mapAsync(MAX_STREAMS, url -> {
                     long zeroTime = System.nanoTime();
                     AsyncHttpClient client = asyncHttpClient();
+
                     return client
                             .prepareGet(url)
                             .execute()
