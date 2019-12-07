@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.Future;
 
 import static config.Config.*;
 import static org.asynchttpclient.Dsl.asyncHttpClient;
@@ -65,7 +66,6 @@ public class Server  extends AllDirectives {
                    // return Supervision.stop();
 
         }).mapAsync(MAX_STREAMS,  msg -> {
-            
                     Patterns.ask(explorer, new FindMessage(msg.getKey()), TIMEOUT)
                             .thenCompose(answer ->
                                     answer.getClass() == TestMessage.class ?
