@@ -49,7 +49,9 @@ public class Server  extends AllDirectives {
             return new TestMessage(url, count);
         }).mapAsync(MAX_STREAMS, msg ->
             Patterns.ask(explorer, new FindMessage(msg.getUrl()), TIMEOUT)
-                    .thenCompose(x -> )
+                    .thenCompose(x ->
+                            x.getClass() == TestMessage.class ?
+                            )
         )
     }
 }
