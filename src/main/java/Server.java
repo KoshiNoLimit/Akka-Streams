@@ -59,7 +59,8 @@ public class Server  extends AllDirectives {
                             x.getClass() == TestMessage.class ?
                             CompletableFuture.completedFuture(x)
                             : Source.from(Collections.singletonList(msg))
-                                .toMat(testSink, Keep.right()).run(materializer))
+                                .toMat(testSink, Keep.right()).run(materializer)))
+                .map()
         )
     }
 }
