@@ -5,6 +5,8 @@ import akka.japi.pf.ReceiveBuilder;
 import java.util.HashMap;
 import java.util.Map;
 
+import static config.Config.HAVENT;
+
 public class ActorExplorer extends AbstractActor {
     private Map<String, Long> store = new HashMap<>();
 
@@ -13,7 +15,7 @@ public class ActorExplorer extends AbstractActor {
         return ReceiveBuilder.create()
                 .match(FindMessage.class, msg -> {
                     if(!store.containsKey(msg.getUrl())) {
-                        sender().tell()
+                        sender().tell(HAVENT)
 
                     }
 
