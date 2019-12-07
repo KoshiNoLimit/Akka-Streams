@@ -9,6 +9,7 @@ import akka.http.javadsl.model.*;
 import akka.http.javadsl.server.AllDirectives;
 import akka.pattern.Patterns;
 import akka.stream.ActorMaterializer;
+import akka.stream.Supervision;
 import akka.stream.javadsl.Flow;
 import akka.stream.javadsl.Keep;
 import akka.stream.javadsl.Sink;
@@ -16,13 +17,11 @@ import akka.stream.javadsl.Source;
 import javafx.util.Pair;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.Dsl;
-import scala.compat.java8.FutureConverters;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.Future;
 
 import static config.Config.*;
 
@@ -35,7 +34,7 @@ public class Server  extends AllDirectives {
 
         final Http http = Http.get(system);
         final ActorMaterializer materializer = ActorMaterializer.create(system);
-        final Flow<HttpRequest, HttpResponse, NotUsed> routeFlow = createFlow(http, explorer, materializer);//вызов метода которому передаем Http, ActorSystem и ActorMaterializer;
+        final Flow<HttpRequest, HttpResponse, NotUsed> routeFlow = createFlow(explorer, materializer);//вызов метода которому передаем Http, ActorSystem и ActorMaterializer;
         final CompletionStage<ServerBinding> binding = http.bindAndHandle(
                 routeFlow,
                 ConnectHttp.toHost(HOST, PORT),
@@ -48,7 +47,7 @@ public class Server  extends AllDirectives {
                 .thenAccept(unbound -> system.terminate()); // and shutdown when done
     }
 
-    private static Flow<HttpRequest, HttpResponse, NotUsed> createFlow(Http http, ActorRef explorer, ActorMaterializer materializer) {
+    private static Flow<HttpRequest, HttpResponse, NotUsed> createFlow(ActorRef explorer, ActorMaterializer materializer) {
 
         Flow<HttpRequest, Object, NotUsed> FlowPairsOfUrls = Flow.of(HttpRequest.class)
                 .map(msg -> {
@@ -60,35 +59,31 @@ public class Server  extends AllDirectives {
                         count = Integer.parseInt(q.get(COUNT_PARAMETER).get());
                         return new Pair<>(url, count);
                     }
+                    return Supervision.stop();
         });
 
-           FlowPairsOfUrls.
-                mapAsync(MAX_STREAMS, msg ->
-                Patterns.ask(explorer, new FindMessage(msg.getKey()), TIMEOUT)
-                        .thenCompose(answer ->
-                                answer.getClass() == TestMessage.class ?
-                                        CompletableFuture.completedFuture(answer)
-                                        : Source
-                                        .from(Collections.singletonList(msg))
-                                        .toMat(testSink(), Keep.right())
-                                        .run(materializer)
-                                        .thenCompose(sum -> CompletableFuture(new TestMessage(msg.getKey(), sum / msg.getValue()))))
-                        .map(answer -> {
-                            explorer.tell(answer, ActorRef.noSender());
-
-                            return HttpResponse
-                                    .create()
-                                    .withStatus(StatusCodes.OK)
-                                    .withEntity(
-                                            HttpEntities.create(
-                                                    answer.getUrl() + " " + result.getCount()
-                                            )
-                                    )
-                        })
-
-
-        );
-
+       FlowPairsOfUrls
+               .mapAsync(MAX_STREAMS, msg ->
+                       Patterns.ask(explorer, new FindMessage(msg.getKey()), TIMEOUT)
+                               .thenCompose(answer ->
+                                       answer.getClass() == TestMessage.class ?
+                                               CompletableFuture.completedFuture(answer)
+                                               : Source.from(Collections.singletonList(msg))
+                                               .toMat(testSink(), Keep.right()).run(materializer)
+                                               .thenCompose(sum ->
+                                                       CompletableFuture(new TestMessage(msg.getKey(), sum / msg.getValue()))))
+                               .map(answer -> {
+                                   explorer.tell(answer, ActorRef.noSender());
+                                   return HttpResponse
+                                           .create()
+                                           .withStatus(StatusCodes.OK)
+                                           .withEntity(
+                                                   HttpEntities.create(
+                                                           answer.getUrl() + " " + result.getCount()
+                                                   )
+                                           );
+                               })
+               );
     }
 
     private static Sink<Pair<String, Integer>, CompletionStage<Long>> testSink() {
