@@ -12,9 +12,12 @@ import akka.http.javadsl.server.AllDirectives;
 import akka.pattern.Patterns;
 import akka.stream.ActorMaterializer;
 import akka.stream.javadsl.Flow;
+import akka.stream.javadsl.Source;
 import com.sun.xml.internal.ws.util.CompletedFuture;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.regex.Pattern;
@@ -54,7 +57,7 @@ public class Server  extends AllDirectives {
                     .thenCompose(x ->
                             x.getClass() == TestMessage.class ?
                             CompletableFuture.completedFuture(x)
-                            : )
+                            : Source.from(Collections.singletonList(r)))
         )
     }
 }
