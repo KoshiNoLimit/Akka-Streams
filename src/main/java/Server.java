@@ -17,7 +17,7 @@ import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
 import javafx.util.Pair;
 import org.asynchttpclient.AsyncHttpClient;
-import org.asynchttpclient.Dsl;
+
 
 import java.io.IOException;
 import java.util.Collections;
@@ -25,6 +25,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 import static config.Config.*;
+import static org.asynchttpclient.Dsl.asyncHttpClient;
 
 public class Server  extends AllDirectives {
 
@@ -97,7 +98,7 @@ public class Server  extends AllDirectives {
                 .mapConcat(msg -> Collections.nCopies(msg.getValue(), msg.getKey()))
                 .mapAsync(MAX_STREAMS, url -> {
                     long zeroTime = System.nanoTime();
-                    AsyncHttpClient client = Dsl.asyncHttpClient();
+                    AsyncHttpClient client = asyncHttpClient();
 
                     return client
                             .prepareGet(url)
