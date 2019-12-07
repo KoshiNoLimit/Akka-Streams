@@ -44,6 +44,7 @@ public class Server  extends AllDirectives {
             Query q = h.getUri().query();
             String url = q.get(ULR_PARAMETER).get();
             Integer count = Integer.valueOf(q.get(COUNT_PARAMETER).get());
+            return new TextConnectionRequest(url, count);
 
         })
     }
