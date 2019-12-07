@@ -45,7 +45,6 @@ public class Server  extends AllDirectives {
             String url = q.get(ULR_PARAMETER).get();
             Integer count = Integer.valueOf(q.get(COUNT_PARAMETER).get());
             return new TestMessage(url, count);
-
         })
     }
 }
