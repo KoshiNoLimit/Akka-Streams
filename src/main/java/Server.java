@@ -88,7 +88,9 @@ public class Server  extends AllDirectives {
                );
     }
 
-    private static takeSource (Pair<String, Integer> pair, Materializer)
+    private static takeSource (Pair<String, Integer> pair, Materializer materializer) {
+        
+    }
 
     private static Sink<Pair<String, Integer>, CompletionStage<Long>> testSink() {
         return Flow.<Pair<String, Integer>>create()
