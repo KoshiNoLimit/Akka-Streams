@@ -69,7 +69,9 @@ public class Server  extends AllDirectives {
                                .thenCompose(answer ->
                                        answer.getClass() == TestMessage.class ?
                                                CompletableFuture.completedFuture(answer)
-                                               : takeSource(msg, materializer)))
+                                               : takeSource(msg, materializer)
+                               )
+                )
                .map(answer -> {
                    explorer.tell(answer, ActorRef.noSender());
                    return HttpResponse
@@ -77,7 +79,7 @@ public class Server  extends AllDirectives {
                            .withStatus(StatusCodes.OK)
                            .withEntity(
                                    HttpEntities.create(
-                                           answer.getUrl() + " " + result.getCount()
+                                           answer.g() + " " + result.getCount()
                                    )
                            );
                });
