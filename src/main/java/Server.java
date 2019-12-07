@@ -45,11 +45,11 @@ public class Server  extends AllDirectives {
         Flow.of(HttpRequest.class).map(h -> {
             Query q = h.getUri().query();
             String url = q.get(ULR_PARAMETER).get();
-            Integer count = Integer.valueOf(q.get(COUNT_PARAMETER).get());
+            Long count = Long.valueOf(q.get(COUNT_PARAMETER).get());
             return new TestMessage(url, count);
         }).mapAsync(MAX_STREAMS, msg ->
             Patterns.ask(explorer, new FindMessage(msg.getUrl()), TIMEOUT)
-                    .thenCompose()
+                    .thenCompose(x -> )
         )
     }
 }
