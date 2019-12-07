@@ -49,35 +49,42 @@ public class Server  extends AllDirectives {
     }
 
     private static Flow<HttpRequest, HttpResponse, NotUsed> createFlow(Http http, ActorRef explorer, ActorMaterializer materializer) {
-        Flow.of(HttpRequest.class).map(h -> {
-            Query q = h.getUri().query();
-            String url = q.get(ULR_PARAMETER).get();
-            Integer count = Integer.valueOf(q.get(COUNT_PARAMETER).get());
-            return new Pair<>(url, count);
-        }).mapAsync(MAX_STREAMS, msg ->
-            Patterns.ask(explorer, new FindMessage(msg.getKey()), TIMEOUT)
-                .thenCompose(answer ->
-                            answer.getClass() == TestMessage.class ?
-                            CompletableFuture.completedFuture(answer)
-                            : Source
-                                .from(Collections.singletonList(msg))
-                                .toMat(testSink(), Keep.right())
-                                .run(materializer)
-                                .thenCompose(sum -> CompletableFuture(new TestMessage(msg.getKey(),  sum / msg.getValue()))))
-                .map(answer -> {
-                    explorer.tell(answer, ActorRef.noSender());
 
-                    return HttpResponse
-                            .create()
-                            .withStatus(StatusCodes.OK)
-                            .withEntity(
-                                    HttpEntities.create(
-                                            answer.getUrl() + " " + result.getCount()
+        Flow<HttpRequest, Object, NotUsed> FlowPairsOfUrls = Flow.of(HttpRequest.class)
+                .map(msg -> {
+                    Query q = msg.getUri().query();
+                    String url;
+                    int count;
+                    if(q.get(ULR_PARAMETER).isPresent() & q.get(COUNT_PARAMETER).isPresent()){
+                        url = q.get(ULR_PARAMETER).get();
+                        count = Integer.parseInt(q.get(COUNT_PARAMETER).get());
+                        return new Pair<>(url, count);
+                    }
+        });
+
+           FlowPairsOfUrls.
+                mapAsync(MAX_STREAMS, msg ->
+                Patterns.ask(explorer, new FindMessage(msg.getKey()), TIMEOUT)
+                        .thenCompose(answer ->
+                                answer.getClass() == TestMessage.class ?
+                                        CompletableFuture.completedFuture(answer)
+                                        : Source
+                                        .from(Collections.singletonList(msg))
+                                        .toMat(testSink(), Keep.right())
+                                        .run(materializer)
+                                        .thenCompose(sum -> CompletableFuture(new TestMessage(msg.getKey(), sum / msg.getValue()))))
+                        .map(answer -> {
+                            explorer.tell(answer, ActorRef.noSender());
+
+                            return HttpResponse
+                                    .create()
+                                    .withStatus(StatusCodes.OK)
+                                    .withEntity(
+                                            HttpEntities.create(
+                                                    answer.getUrl() + " " + result.getCount()
+                                            )
                                     )
-                            )
-                })
-
-
+                        })
 
 
         );
