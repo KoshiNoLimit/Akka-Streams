@@ -13,15 +13,16 @@ import akka.pattern.Patterns;
 import akka.stream.ActorMaterializer;
 import akka.stream.javadsl.Flow;
 import akka.stream.javadsl.Keep;
+import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
-import com.sun.xml.internal.ws.util.CompletedFuture;
+import javafx.util.Pair;
+import scala.compat.java8.FutureConverters;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.regex.Pattern;
+import java.util.concurrent.Future;
 
 import static config.Config.*;
 
@@ -51,22 +52,28 @@ public class Server  extends AllDirectives {
         Flow.of(HttpRequest.class).map(h -> {
             Query q = h.getUri().query();
             String url = q.get(ULR_PARAMETER).get();
-            Long count = Long.valueOf(q.get(COUNT_PARAMETER).get());
-            return new TestMessage(url, count);
+            Integer count = Integer.valueOf(q.get(COUNT_PARAMETER).get());
+            return new Pair<>(url, count);
         }).mapAsync(MAX_STREAMS, msg ->
-            Patterns.ask(explorer, new FindMessage(msg.getUrl()), TIMEOUT)
-                    .thenCompose(x ->
-                            x.getClass() == TestMessage.class ?
-                            CompletableFuture.completedFuture(x)
-                            : Source.from(Collections.singletonList(msg))
-                                .toMat(testSink, Keep.right()).run(materializer)))
-                .map(msg -> {
-                    explorer.tell(msg, ActorRef.noSender());
+            Patterns.ask(explorer, new FindMessage(msg.getKey()), TIMEOUT)
+                .thenCompose(answer ->
+                            answer.getClass() == TestMessage.class ?
+                            CompletableFuture.completedFuture(answer)
+                            : Source
+                                .from(Collections.singletonList(msg))
+                                .toMat(testSink(), Keep.right())
+                                .run(materializer)
+                                .thenApply(sum -> new TestMessage(msg.getKey(),  sum / msg.getValue()))));
 
-                    HttpResponse.create().
 
 
-                })
-        )
+        );
+
+    }
+
+    private static Sink<Long> testSink() {
+        Flow.<Pair<String, Integer>>create()
+                .mapConcat()
+
     }
 }
