@@ -5,7 +5,7 @@ import akka.japi.pf.ReceiveBuilder;
 import java.util.Map;
 
 public class ActorExplorer extends AbstractActor {
-    private Map<String, >
+    private Map<String, Long>
 
     @Override
     public Receive createReceive() {
