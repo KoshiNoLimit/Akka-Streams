@@ -16,6 +16,8 @@ import akka.stream.javadsl.Keep;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
 import javafx.util.Pair;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.Dsl;
 import scala.compat.java8.FutureConverters;
 
 import java.io.IOException;
@@ -74,7 +76,16 @@ public class Server  extends AllDirectives {
     private static Sink<Long> testSink() {
         Flow.<Pair<String, Integer>>create()
                 .mapConcat(msg -> Collections.nCopies(msg.getValue(), msg.getKey()))
-                .mapAsync(MAX_STREAMS, )
+                .mapAsync(MAX_STREAMS, url -> {
+                    Long zeroTime = System.nanoTime();
+                    AsyncHttpClient client = Dsl.asyncHttpClient();
+
+                    return client
+                            .prepareGet(url)
+                            .execute()
+                            .toCompletableFuture()
+                            .thenCompose(response)
+                })
 
     }
 }
