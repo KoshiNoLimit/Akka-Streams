@@ -51,7 +51,7 @@ public class Server  extends AllDirectives {
             Patterns.ask(explorer, new FindMessage(msg.getUrl()), TIMEOUT)
                     .thenCompose(x ->
                             x.getClass() == TestMessage.class ?
-                            )
+                            CompletionStage<Long>)
         )
     }
 }
