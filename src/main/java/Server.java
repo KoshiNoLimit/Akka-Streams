@@ -64,7 +64,7 @@ public class Server  extends AllDirectives {
 
        FlowPairsOfUrls
                .mapAsync(MAX_STREAMS, msg ->
-                       Patterns.ask(explorer, new FindMessage(msg.), TIMEOUT)
+                       Patterns.ask(explorer, new FindMessage(msg.getKey()), TIMEOUT)
                                .thenCompose(answer ->
                                        answer.getClass() == TestMessage.class ?
                                                CompletableFuture.completedFuture(answer)
