@@ -17,6 +17,7 @@ import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
 import javafx.util.Pair;
 import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.Response;
 
 
 import java.io.IOException;
@@ -104,7 +105,8 @@ public class Server  extends AllDirectives {
                             .prepareGet(url)
                             .execute()
                             .toCompletableFuture()
-                            .thenCompose(response -> System.nanoTime() - zeroTime);
+                            .exceptionally(throwable -> (Response) Supervision.stop())
+                            .thenApply(response -> System.nanoTime() - zeroTime);
                 })
                 .toMat(Sink.fold(0L, Long::sum), Keep.right());
     }
