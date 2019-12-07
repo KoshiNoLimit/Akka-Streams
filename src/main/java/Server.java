@@ -9,6 +9,7 @@ import akka.http.javadsl.model.*;
 import akka.http.javadsl.server.AllDirectives;
 import akka.pattern.Patterns;
 import akka.stream.ActorMaterializer;
+import akka.stream.Materializer;
 import akka.stream.Supervision;
 import akka.stream.javadsl.Flow;
 import akka.stream.javadsl.Keep;
@@ -87,7 +88,7 @@ public class Server  extends AllDirectives {
                );
     }
 
-    private static takeSource
+    private static takeSource (Pair<String, Integer> pair, Materializer)
 
     private static Sink<Pair<String, Integer>, CompletionStage<Long>> testSink() {
         return Flow.<Pair<String, Integer>>create()
