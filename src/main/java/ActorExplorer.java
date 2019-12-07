@@ -13,7 +13,8 @@ public class ActorExplorer extends AbstractActor {
         return ReceiveBuilder.create()
                 .match(FindMessage.class, msg -> {
                     if(!store.containsKey(msg.getUrl())) {
-                        
+                        sender().tell
+
                     }
 
                 })
