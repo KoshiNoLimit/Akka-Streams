@@ -1,6 +1,7 @@
 import akka.NotUsed;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
+import akka.actor.Props;
 import akka.http.javadsl.ConnectHttp;
 import akka.http.javadsl.Http;
 import akka.http.javadsl.ServerBinding;
@@ -20,11 +21,11 @@ public class Server  extends AllDirectives {
     public static void main(String[] args) throws IOException {
         System.out.println(ON_START);
         ActorSystem system = ActorSystem.create(SYSTEM_NAME);
-        ActorRef Explorer = system.actorOf(Props.)
+        ActorRef explorer = system.actorOf(Props.create(ActorExplorer.class));
 
         final Http http = Http.get(system);
         final ActorMaterializer materializer = ActorMaterializer.create(system);
-        final Flow<HttpRequest, HttpResponse, NotUsed> routeFlow = createFlow(http, system, materializer);//вызов метода которому передаем Http, ActorSystem и ActorMaterializer;
+        final Flow<HttpRequest, HttpResponse, NotUsed> routeFlow = createFlow(http, explorer, materializer);//вызов метода которому передаем Http, ActorSystem и ActorMaterializer;
         final CompletionStage<ServerBinding> binding = http.bindAndHandle(
                 routeFlow,
                 ConnectHttp.toHost(HOST, PORT),
