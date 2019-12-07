@@ -74,7 +74,7 @@ public class Server  extends AllDirectives {
     }
 
     private static Sink<Long> testSink() {
-        Flow.<Pair<String, Integer>>create()
+        return Flow.<Pair<String, Integer>>create()
                 .mapConcat(msg -> Collections.nCopies(msg.getValue(), msg.getKey()))
                 .mapAsync(MAX_STREAMS, url -> {
                     Long zeroTime = System.nanoTime();
@@ -84,8 +84,8 @@ public class Server  extends AllDirectives {
                             .prepareGet(url)
                             .execute()
                             .toCompletableFuture()
-                            .thenCompose(response)
+                            .thenCompose(response -> System.nanoTime() - zeroTime);
                 })
-
+                .toMat(Sink.fold(0L, Long::sum), Keep.right());
     }
 }
