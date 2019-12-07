@@ -20,7 +20,7 @@ public class Server  extends AllDirectives {
     public static void main(String[] args) throws IOException {
         System.out.println(ON_START);
         ActorSystem system = ActorSystem.create(SYSTEM_NAME);
-        ActorRef Explorer = actorOf
+        ActorRef Explorer = system.actorOf(Props.)
 
         final Http http = Http.get(system);
         final ActorMaterializer materializer = ActorMaterializer.create(system);
