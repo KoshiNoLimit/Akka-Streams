@@ -55,17 +55,17 @@ public class Server  extends AllDirectives {
         return Flow.of(HttpRequest.class)
                 .map(msg -> {
                     Query q = msg.getUri().query();
-                    String url;
-                    int count;
-                    url = q.get(ULR_PARAMETER).get();
-                    count = Integer.parseInt(q.get(COUNT_PARAMETER).get());
+                    String url = q.get(ULR_PARAMETER).get();
+                    int count = Integer.parseInt(q.get(COUNT_PARAMETER).get());
                     return new Pair<>(url, count);
+
                 }).mapAsync(MAX_STREAMS,  msg ->
                         Patterns.ask(explorer, new FindMessage(msg.getKey()), TIMEOUT)
                                 .thenCompose(answer ->
                                     answer.getClass() == TestMessage.class ?
                                         CompletableFuture.completedFuture((TestMessage) answer)
                                         :takeSource(msg, materializer))
+
                 ).map(answer -> {
                     explorer.tell(answer, ActorRef.noSender());
                     return HttpResponse
