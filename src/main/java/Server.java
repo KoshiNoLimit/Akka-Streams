@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.Future;
 
 import static config.Config.*;
 import static org.asynchttpclient.Dsl.asyncHttpClient;
@@ -38,7 +37,7 @@ public class Server  extends AllDirectives {
 
         final Http http = Http.get(system);
         final ActorMaterializer materializer = ActorMaterializer.create(system);
-        final Flow<HttpRequest, HttpResponse, NotUsed> routeFlow = createFlow(explorer, materializer);//вызов метода которому передаем Http, ActorSystem и ActorMaterializer;
+        final Flow<HttpRequest, HttpResponse, NotUsed> routeFlow = createFlow(explorer, materializer);
         final CompletionStage<ServerBinding> binding = http.bindAndHandle(
                 routeFlow,
                 ConnectHttp.toHost(HOST, PORT),
@@ -47,8 +46,8 @@ public class Server  extends AllDirectives {
         System.out.println(SERVER_START_MESSAGE);
         System.in.read();
         binding
-                .thenCompose(ServerBinding::unbind) // trigger unbinding from the port
-                .thenAccept(unbound -> system.terminate()); // and shutdown when done
+                .thenCompose(ServerBinding::unbind)
+                .thenAccept(unbound -> system.terminate());
     }
 
     private static Flow<HttpRequest, HttpResponse, NotUsed> createFlow(ActorRef explorer, ActorMaterializer materializer) {
@@ -58,18 +57,15 @@ public class Server  extends AllDirectives {
                     Query q = msg.getUri().query();
                     String url;
                     int count;
-                    //if(q.get(ULR_PARAMETER).isPresent() & q.get(COUNT_PARAMETER).isPresent()){
-                        url = q.get(ULR_PARAMETER).get();
-                        count = Integer.parseInt(q.get(COUNT_PARAMETER).get());
-                        return new Pair<>(url, count);
-                   // }
-                   // return Supervision.stop();
+                    url = q.get(ULR_PARAMETER).get();
+                    count = Integer.parseInt(q.get(COUNT_PARAMETER).get());
+                    return new Pair<>(url, count);
                 }).mapAsync(MAX_STREAMS,  msg ->
                         Patterns.ask(explorer, new FindMessage(msg.getKey()), TIMEOUT)
                                 .thenCompose(answer ->
-                                        answer.getClass() == TestMessage.class ?
-                                                CompletableFuture.completedFuture(answer)
-                                                : takeSource(msg, materializer))
+                                    answer.getClass() == TestMessage.class ?
+                                        CompletableFuture.completedFuture((TestMessage) answer)
+                                        :takeSource(msg, materializer))
                 ).map(answer -> {
                     explorer.tell(answer, ActorRef.noSender());
                     return HttpResponse
@@ -81,11 +77,11 @@ public class Server  extends AllDirectives {
                 });
     }
 
-    private static CompletionStage<Long> takeSource (Pair<String, Integer> pair, Materializer materializer) {
+    private static CompletionStage<TestMessage> takeSource (Pair<String, Integer> pair, Materializer materializer) {
         return Source.from(Collections.singletonList(pair))
                 .toMat(testSink(), Keep.right())
                 .run(materializer)
-                .thenApply(sum -> sum/pair.getValue());
+                .thenCompose(sum -> CompletableFuture.completedFuture(new TestMessage(pair.getKey(),sum/pair.getValue())));
     }
 
     private static Sink<Pair<String, Integer>, CompletionStage<Long>> testSink() {
