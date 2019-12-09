@@ -53,7 +53,7 @@ public class FlowGenerator {
         return Source.from(Collections.singletonList(pair))
                 .toMat(testSink(), Keep.right())
                 .run(materializer)
-                .thenCompose(sum -> CompletableFuture.completedFuture(new TestMessage(pair.getKey(),sum/pair.getValue())));
+                .thenCompose(sum -> CompletableFuture.completedFuture(new TestMessage(pair.getKey(),sum/pair.getValue()/NANO_SIZE)));
     }
 
     private static Sink<Pair<String, Integer>, CompletionStage<Long>> testSink() {

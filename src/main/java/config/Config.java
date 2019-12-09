@@ -13,5 +13,6 @@ public class Config {
     public static final Integer MAX_STREAMS = 4;
     public static final Duration TIMEOUT = Duration.ofMillis(5000);
     public static final String  HAVENT = "Have not";
+    public static final Integer NANO_SIZE = 1000000;
 
 }
